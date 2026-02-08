@@ -1,0 +1,650 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Time Capsule — TP Analytics</title>
+  <meta name="description" content="Mini time capsule : écris un message et définis une date de réouverture. Parfait pour implémenter Google Analytics." />
+
+  <!-- =============================
+       Google Analytics (GA4) - PLACEHOLDER
+       Remplace G-XXXXXXXXXX par ton Measurement ID
+       ============================= -->
+  <!--
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-XXXXXXXXXX');
+  </script>
+  -->
+
+  <style>
+    :root{
+      --bg: #0b1020;
+      --panel: rgba(255,255,255,.06);
+      --panel2: rgba(255,255,255,.10);
+      --text: rgba(255,255,255,.92);
+      --muted: rgba(255,255,255,.65);
+      --stroke: rgba(255,255,255,.14);
+      --accent: #7c5cff;
+      --accent2: #2ee59d;
+      --danger: #ff4d6d;
+      --shadow: 0 20px 60px rgba(0,0,0,.35);
+      --radius: 18px;
+      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      --sans: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      font-family:var(--sans);
+      color:var(--text);
+      background:
+        radial-gradient(1200px 600px at 20% 10%, rgba(124,92,255,.35), transparent 60%),
+        radial-gradient(900px 500px at 80% 30%, rgba(46,229,157,.25), transparent 55%),
+        radial-gradient(900px 500px at 50% 100%, rgba(255,77,109,.18), transparent 55%),
+        linear-gradient(180deg, #070a14 0%, var(--bg) 55%, #050814 100%);
+      overflow-x:hidden;
+    }
+    a{color:inherit}
+    .wrap{max-width:1080px; margin:0 auto; padding:28px 18px 60px;}
+    header{
+      display:flex; align-items:center; justify-content:space-between;
+      gap:16px; position:sticky; top:0; z-index:3;
+      background: linear-gradient(180deg, rgba(11,16,32,.85), rgba(11,16,32,.50));
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid rgba(255,255,255,.06);
+      padding:14px 18px;
+      margin:-28px -18px 28px;
+    }
+    .brand{display:flex; align-items:center; gap:12px;}
+    .logo{
+      width:38px; height:38px; border-radius:14px;
+      background: conic-gradient(from 220deg, var(--accent), var(--accent2), var(--danger), var(--accent));
+      box-shadow: 0 12px 30px rgba(124,92,255,.25);
+      position:relative;
+    }
+    .logo:after{
+      content:""; position:absolute; inset:2px;
+      border-radius:12px; background: rgba(11,16,32,.55);
+      border:1px solid rgba(255,255,255,.10);
+    }
+    .brand h1{font-size:14px; margin:0; letter-spacing:.4px}
+    .brand p{margin:0; font-size:12px; color:var(--muted)}
+    .nav{display:flex; gap:10px; flex-wrap:wrap; justify-content:flex-end}
+    .chip{
+      font-size:12px; padding:8px 10px; border-radius:999px;
+      background: rgba(255,255,255,.06);
+      border:1px solid rgba(255,255,255,.10);
+      color: rgba(255,255,255,.85);
+      text-decoration:none;
+      transition:.15s transform, .15s background, .15s border;
+      user-select:none;
+    }
+    .chip:hover{transform: translateY(-1px); background: rgba(255,255,255,.08); border-color: rgba(255,255,255,.14)}
+    .hero{
+      display:grid;
+      grid-template-columns: 1.15fr .85fr;
+      gap:18px;
+      align-items:stretch;
+    }
+    @media (max-width: 900px){ .hero{grid-template-columns:1fr} header{position:relative} }
+    .card{
+      background: linear-gradient(180deg, rgba(255,255,255,.07), rgba(255,255,255,.04));
+      border:1px solid rgba(255,255,255,.12);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow:hidden;
+    }
+    .card .pad{padding:18px}
+    .title{
+      font-size:34px; line-height:1.08; margin:0 0 10px;
+      letter-spacing:-.4px;
+    }
+    .subtitle{
+      margin:0 0 18px;
+      color: var(--muted);
+      max-width: 65ch;
+    }
+    .badges{display:flex; gap:10px; flex-wrap:wrap; margin:0 0 6px}
+    .badge{
+      font-size:12px; padding:6px 10px; border-radius:999px;
+      background: rgba(46,229,157,.12);
+      border:1px solid rgba(46,229,157,.30);
+      color: rgba(255,255,255,.9);
+    }
+    .badge.alt{
+      background: rgba(124,92,255,.12);
+      border-color: rgba(124,92,255,.32);
+    }
+    .badge.warn{
+      background: rgba(255,77,109,.10);
+      border-color: rgba(255,77,109,.30);
+    }
+
+    form{display:grid; gap:12px}
+    label{font-size:12px; color: rgba(255,255,255,.82)}
+    .row{display:grid; grid-template-columns:1fr 1fr; gap:12px}
+    @media (max-width: 520px){ .row{grid-template-columns:1fr} }
+    input, textarea, select{
+      width:100%;
+      font: inherit;
+      color: var(--text);
+      background: rgba(255,255,255,.05);
+      border: 1px solid rgba(255,255,255,.14);
+      border-radius: 14px;
+      padding: 10px 12px;
+      outline: none;
+      transition: .15s border, .15s background;
+    }
+    textarea{min-height:120px; resize: vertical}
+    input:focus, textarea:focus, select:focus{
+      border-color: rgba(124,92,255,.55);
+      background: rgba(255,255,255,.06);
+    }
+
+    .actions{display:flex; gap:10px; flex-wrap:wrap; align-items:center}
+    .btn{
+      border:1px solid rgba(255,255,255,.16);
+      background: rgba(255,255,255,.06);
+      color: var(--text);
+      padding: 10px 12px;
+      border-radius: 14px;
+      cursor:pointer;
+      transition:.15s transform, .15s border, .15s background;
+      font-weight:600;
+      user-select:none;
+    }
+    .btn:hover{transform: translateY(-1px); border-color: rgba(255,255,255,.22); background: rgba(255,255,255,.08)}
+    .btn.primary{
+      border-color: rgba(124,92,255,.60);
+      background: linear-gradient(180deg, rgba(124,92,255,.28), rgba(124,92,255,.12));
+    }
+    .btn.danger{
+      border-color: rgba(255,77,109,.55);
+      background: linear-gradient(180deg, rgba(255,77,109,.20), rgba(255,77,109,.08));
+    }
+    .hint{font-size:12px; color: var(--muted); margin:0}
+    .kpi{
+      display:grid; gap:10px;
+      grid-template-columns: 1fr 1fr;
+      margin-top:14px;
+    }
+    .mini{
+      background: rgba(255,255,255,.05);
+      border:1px solid rgba(255,255,255,.10);
+      border-radius: 16px;
+      padding: 12px;
+    }
+    .mini h3{margin:0 0 6px; font-size:12px; color: var(--muted); letter-spacing:.5px; text-transform:uppercase}
+    .mini .big{font-size:18px; font-family: var(--mono); margin:0}
+    .mini .small{font-size:12px; color: var(--muted); margin:6px 0 0}
+
+    .preview{
+      display:grid; gap:12px;
+      height:100%;
+    }
+    .screen{
+      border-radius: var(--radius);
+      background:
+        radial-gradient(700px 400px at 40% 20%, rgba(124,92,255,.20), transparent 60%),
+        rgba(255,255,255,.04);
+      border:1px solid rgba(255,255,255,.12);
+      padding: 16px;
+      min-height: 240px;
+      position:relative;
+      overflow:hidden;
+    }
+    .screen:before{
+      content:"";
+      position:absolute; inset:-40px;
+      background: radial-gradient(closest-side, rgba(46,229,157,.10), transparent);
+      transform: rotate(10deg);
+      filter: blur(0px);
+      opacity:.9;
+    }
+    .screen > *{position:relative}
+    .screen h2{margin:0 0 8px; font-size:16px; letter-spacing:.3px}
+    .capsule{
+      margin-top: 10px;
+      padding: 12px;
+      border-radius: 14px;
+      background: rgba(11,16,32,.55);
+      border: 1px solid rgba(255,255,255,.12);
+    }
+    .capsule .meta{
+      display:flex; gap:10px; flex-wrap:wrap;
+      font-size:12px; color: var(--muted);
+      margin-bottom:8px;
+    }
+    .capsule .message{
+      margin:0;
+      white-space: pre-wrap;
+      line-height:1.45;
+    }
+    .footer{
+      margin-top: 18px;
+      padding: 14px 18px;
+      border-radius: 16px;
+      border: 1px solid rgba(255,255,255,.10);
+      background: rgba(255,255,255,.04);
+      display:flex; gap:10px; align-items:flex-start; justify-content:space-between; flex-wrap:wrap;
+    }
+    .footer p{margin:0; color: var(--muted); font-size:12px}
+    .toast{
+      position: fixed;
+      bottom: 16px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(0,0,0,.55);
+      border: 1px solid rgba(255,255,255,.14);
+      color: rgba(255,255,255,.92);
+      padding: 10px 12px;
+      border-radius: 999px;
+      font-size: 12px;
+      opacity: 0;
+      pointer-events:none;
+      transition: .18s opacity, .18s transform;
+      backdrop-filter: blur(10px);
+      z-index:10;
+    }
+    .toast.show{
+      opacity: 1;
+      transform: translateX(-50%) translateY(-2px);
+    }
+    .sr-only{
+      position:absolute; width:1px; height:1px; padding:0; margin:-1px;
+      overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="wrap">
+    <header>
+      <div class="brand">
+        <div class="logo" aria-hidden="true"></div>
+        <div>
+          <h1>Time Capsule</h1>
+          <p>Mini one-page (TP) — interactions prêtes pour GA</p>
+        </div>
+      </div>
+      <nav class="nav" aria-label="Navigation">
+        <a class="chip" href="#capsule">Créer</a>
+        <a class="chip" href="#preview">Aperçu</a>
+        <a class="chip" href="#events">Idées GA</a>
+      </nav>
+    </header>
+
+    <section class="hero" id="capsule">
+      <div class="card">
+        <div class="pad">
+          <div class="badges">
+            <span class="badge">TP analytics</span>
+            <span class="badge alt">events prêts</span>
+            <span class="badge warn">zéro backend</span>
+          </div>
+          <h2 class="title">Écris un message…<br/>à ton “toi du futur”.</h2>
+          <p class="subtitle">
+            Tu rédiges un message, tu fixes une date de réouverture, et le site te montre un compte à rebours.
+            Parfait pour instrumenter des événements Google Analytics (création, validation, copier, reset…).
+          </p>
+
+          <form id="capsuleForm">
+            <div class="row">
+              <div>
+                <label for="author">Ton nom (ou pseudo)</label>
+                <input id="author" name="author" type="text" placeholder="Ex: Sam" autocomplete="nickname" />
+              </div>
+              <div>
+                <label for="mood">Humeur actuelle</label>
+                <select id="mood" name="mood">
+                  <option value="🙂 calme">🙂 calme</option>
+                  <option value="🚀 motivé(e)">🚀 motivé(e)</option>
+                  <option value="🤯 débordé(e)">🤯 débordé(e)</option>
+                  <option value="🧠 focus">🧠 focus</option>
+                  <option value="🎉 joyeux(se)">🎉 joyeux(se)</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="row">
+              <div>
+                <label for="openDate">Date de réouverture</label>
+                <input id="openDate" name="openDate" type="date" required />
+              </div>
+              <div>
+                <label for="theme">Thème</label>
+                <select id="theme" name="theme">
+                  <option value="Objectifs">Objectifs</option>
+                  <option value="Souvenirs">Souvenirs</option>
+                  <option value="Études / TP">Études / TP</option>
+                  <option value="Santé">Santé</option>
+                  <option value="Carrière">Carrière</option>
+                </select>
+              </div>
+            </div>
+
+            <div>
+              <label for="message">Message</label>
+              <textarea id="message" name="message" placeholder="Ex: Dans 6 mois, j’espère que… (écris 4-8 lignes)"></textarea>
+            </div>
+
+            <div class="actions">
+              <button class="btn primary" type="submit" id="btnSeal">Sceller la capsule</button>
+              <button class="btn" type="button" id="btnCopy">Copier un lien de partage</button>
+              <button class="btn danger" type="button" id="btnReset">Réinitialiser</button>
+              <p class="hint">Tout est stocké localement (localStorage). Rien n’est envoyé.</p>
+            </div>
+
+            <div class="kpi" aria-label="Indicateurs">
+              <div class="mini">
+                <h3>Countdown</h3>
+                <p class="big" id="countdown">—</p>
+                <p class="small" id="countdownSub">Choisis une date.</p>
+              </div>
+              <div class="mini">
+                <h3>Statut</h3>
+                <p class="big" id="status">Brouillon</p>
+                <p class="small" id="statusSub">Scelle la capsule pour générer un “share code”.</p>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <div class="preview card" id="preview">
+        <div class="pad">
+          <h2 style="margin:0 0 10px; font-size:14px; letter-spacing:.5px; color: rgba(255,255,255,.75); text-transform:uppercase;">
+            Aperçu
+          </h2>
+          <div class="screen" role="region" aria-label="Aperçu capsule">
+            <h2 id="previewTitle">Capsule non scellée</h2>
+            <div class="capsule">
+              <div class="meta" id="previewMeta">
+                <span>👤 —</span>
+                <span>🏷️ —</span>
+                <span>🗓️ —</span>
+                <span>💭 —</span>
+              </div>
+              <p class="message" id="previewMessage">Écris un message pour voir l’aperçu ici.</p>
+            </div>
+          </div>
+
+          <div class="footer" id="events">
+            <div style="max-width: 70ch">
+              <p><strong>Idées d’events GA (facile à tracer)</strong></p>
+              <p>
+                <span style="font-family:var(--mono)">capsule_seal</span> (submit),
+                <span style="font-family:var(--mono)">capsule_copy_link</span> (click),
+                <span style="font-family:var(--mono)">capsule_reset</span> (click),
+                <span style="font-family:var(--mono)">field_change</span> (input),
+                <span style="font-family:var(--mono)">countdown_tick</span> (optionnel).
+              </p>
+            </div>
+            <div>
+              <p><strong>Astuce</strong></p>
+              <p>Ajoute <span style="font-family:var(--mono)">event_params</span> : theme, mood, days_left, message_len…</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  </div>
+
+  <script>
+    // ======== Helpers UI ========
+    const $ = (sel) => document.querySelector(sel);
+    const toastEl = $("#toast");
+    let toastTimer = null;
+
+    function toast(msg){
+      toastEl.textContent = msg;
+      toastEl.classList.add("show");
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(()=> toastEl.classList.remove("show"), 1600);
+    }
+
+    function clamp(n, min, max){ return Math.max(min, Math.min(max, n)); }
+
+    function daysBetween(a, b){
+      const ms = b - a;
+      return Math.ceil(ms / (1000 * 60 * 60 * 24));
+    }
+
+    function formatCountdown(targetDate){
+      const now = new Date();
+      const t = new Date(targetDate);
+      if (Number.isNaN(t.getTime())) return { main: "—", sub: "Choisis une date." };
+
+      const diffMs = t - now;
+      const isPast = diffMs <= 0;
+      const totalSec = Math.max(0, Math.floor(diffMs / 1000));
+      const d = Math.floor(totalSec / 86400);
+      const h = Math.floor((totalSec % 86400) / 3600);
+      const m = Math.floor((totalSec % 3600) / 60);
+      const s = totalSec % 60;
+
+      if (isPast) return { main: "OUVERTE", sub: "La date est passée : tu peux relire la capsule." };
+
+      const main = `${String(d).padStart(2,"0")}j ${String(h).padStart(2,"0")}h ${String(m).padStart(2,"0")}m ${String(s).padStart(2,"0")}s`;
+      const sub = `Encore ${d} jour(s) avant l'ouverture.`;
+      return { main, sub };
+    }
+
+    // ======== State (local) ========
+    const STORAGE_KEY = "tp_time_capsule_v1";
+    const form = $("#capsuleForm");
+
+    function getState(){
+      try{
+        return JSON.parse(localStorage.getItem(STORAGE_KEY)) || {};
+      }catch(e){
+        return {};
+      }
+    }
+
+    function setState(patch){
+      const current = getState();
+      const next = { ...current, ...patch };
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
+      return next;
+    }
+
+    function computeShareCode(state){
+      // Petit code "partage" (pas sécurisé, juste pour TP)
+      const raw = `${state.author||""}|${state.mood||""}|${state.theme||""}|${state.openDate||""}|${(state.message||"").slice(0,120)}`;
+      let hash = 0;
+      for (let i=0;i<raw.length;i++){
+        hash = ((hash<<5)-hash) + raw.charCodeAt(i);
+        hash |= 0;
+      }
+      return Math.abs(hash).toString(36).toUpperCase().slice(0,8);
+    }
+
+    function updatePreview(state){
+      const author = state.author?.trim() || "—";
+      const mood = state.mood || "—";
+      const theme = state.theme || "—";
+      const openDate = state.openDate || "—";
+      const message = state.message?.trim() || "Écris un message pour voir l’aperçu ici.";
+
+      $("#previewMeta").innerHTML = `
+        <span>👤 ${escapeHtml(author)}</span>
+        <span>🏷️ ${escapeHtml(theme)}</span>
+        <span>🗓️ ${escapeHtml(openDate)}</span>
+        <span>💭 ${escapeHtml(mood)}</span>
+      `;
+      $("#previewMessage").textContent = message;
+
+      const sealed = !!state.sealed;
+      const code = state.shareCode || "—";
+      $("#previewTitle").textContent = sealed ? `Capsule scellée — Code: ${code}` : "Capsule non scellée";
+
+      // KPIs
+      const cd = formatCountdown(openDate);
+      $("#countdown").textContent = cd.main;
+      $("#countdownSub").textContent = cd.sub;
+
+      $("#status").textContent = sealed ? "Scellée" : "Brouillon";
+      $("#statusSub").textContent = sealed
+        ? "Tu peux copier un lien de partage."
+        : "Scelle la capsule pour générer un “share code”.";
+    }
+
+    function escapeHtml(str){
+      return String(str)
+        .replaceAll("&","&amp;")
+        .replaceAll("<","&lt;")
+        .replaceAll(">","&gt;")
+        .replaceAll('"',"&quot;")
+        .replaceAll("'","&#039;");
+    }
+
+    function hydrateForm(state){
+      $("#author").value = state.author || "";
+      $("#mood").value = state.mood || "🙂 calme";
+      $("#openDate").value = state.openDate || "";
+      $("#theme").value = state.theme || "Objectifs";
+      $("#message").value = state.message || "";
+    }
+
+    // ======== GA helper (works even if GA not installed) ========
+    function track(eventName, params = {}){
+      // Décommente si tu veux debug
+      // console.log("[track]", eventName, params);
+
+      // gtag available?
+      if (typeof window.gtag === "function"){
+        window.gtag("event", eventName, params);
+      }
+    }
+
+    // ======== Events ========
+    function onFieldChange(){
+      const state = setState({
+        author: $("#author").value,
+        mood: $("#mood").value,
+        openDate: $("#openDate").value,
+        theme: $("#theme").value,
+        message: $("#message").value,
+        sealed: false,
+        shareCode: null
+      });
+
+      updatePreview(state);
+
+      track("field_change", {
+        field: document.activeElement?.id || "unknown",
+        theme: state.theme,
+        mood: state.mood,
+        message_len: (state.message || "").length
+      });
+    }
+
+    ["author","mood","openDate","theme","message"].forEach(id => {
+      const el = $("#" + id);
+      el.addEventListener("input", onFieldChange);
+      el.addEventListener("change", onFieldChange);
+    });
+
+    form.addEventListener("submit", (e) => {
+      e.preventDefault();
+
+      const openDate = $("#openDate").value;
+      if (!openDate){
+        toast("Choisis une date de réouverture 🙂");
+        track("capsule_seal_error", { reason: "missing_openDate" });
+        return;
+      }
+
+      const draft = getState();
+      const shareCode = computeShareCode(draft);
+
+      const state = setState({
+        ...draft,
+        sealed: true,
+        shareCode
+      });
+
+      updatePreview(state);
+      toast("Capsule scellée 🔒");
+
+      const dleft = daysBetween(new Date(), new Date(openDate));
+      track("capsule_seal", {
+        theme: state.theme,
+        mood: state.mood,
+        days_left: clamp(dleft, -9999, 9999),
+        message_len: (state.message || "").length
+      });
+    });
+
+    $("#btnReset").addEventListener("click", () => {
+      localStorage.removeItem(STORAGE_KEY);
+      hydrateForm({});
+      updatePreview({});
+      toast("Réinitialisé.");
+      track("capsule_reset", {});
+    });
+
+    $("#btnCopy").addEventListener("click", async () => {
+      const state = getState();
+      if (!state.sealed || !state.shareCode){
+        toast("Scelle d’abord la capsule 🙂");
+        track("capsule_copy_link_error", { reason: "not_sealed" });
+        return;
+      }
+
+      // “Lien” de partage fictif (on encode juste le code dans le hash)
+      const url = new URL(window.location.href);
+      url.hash = `share=${encodeURIComponent(state.shareCode)}`;
+
+      try{
+        await navigator.clipboard.writeText(url.toString());
+        toast("Lien copié ✅");
+      }catch(e){
+        // fallback
+        prompt("Copie ce lien :", url.toString());
+        toast("Copie via prompt.");
+      }
+
+      track("capsule_copy_link", {
+        theme: state.theme,
+        mood: state.mood,
+        code: state.shareCode
+      });
+    });
+
+    // Countdown ticker (1s) — utile pour un event optionnel
+    setInterval(() => {
+      const state = getState();
+      if (!state.openDate) return;
+      const cd = formatCountdown(state.openDate);
+      $("#countdown").textContent = cd.main;
+      $("#countdownSub").textContent = cd.sub;
+
+      // Optionnel: ne PAS spam GA. Exemple: event toutes les 30s max, ou seulement quand focus
+      // track("countdown_tick", { seconds_left: ... });
+    }, 1000);
+
+    // ======== Init ========
+    const initial = getState();
+    hydrateForm(initial);
+    updatePreview(initial);
+
+    // Exemple: lecture du hash pour “share=CODE”
+    // (Ici on affiche juste un toast, tu peux instrumenter un event)
+    const hash = window.location.hash || "";
+    if (hash.startsWith("#share=")){
+      const code = decodeURIComponent(hash.replace("#share=",""));
+      toast("Mode partage : " + code);
+      track("open_share_link", { code });
+    }
+  </script>
+</body>
+</html>
