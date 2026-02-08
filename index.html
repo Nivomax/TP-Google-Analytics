@@ -3,384 +3,91 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Micro Habits</title>
+  <title>Compteur de clics</title>
   <style>
-    :root{
-      --bg:#0b0f1a;
-      --card:rgba(255,255,255,.06);
-      --stroke:rgba(255,255,255,.12);
-      --text:rgba(255,255,255,.92);
-      --muted:rgba(255,255,255,.66);
-      --accent:#7c5cff;
-      --ok:#2ee59d;
-      --bad:#ff4d6d;
-      --r:16px;
-      --shadow:0 20px 60px rgba(0,0,0,.35);
-      --mono:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace;
-      --sans:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial;
-    }
-    *{box-sizing:border-box}
     body{
       margin:0;
-      font-family:var(--sans);
-      color:var(--text);
-      background:
-        radial-gradient(900px 500px at 20% 10%, rgba(124,92,255,.28), transparent 60%),
-        radial-gradient(700px 400px at 85% 20%, rgba(46,229,157,.18), transparent 55%),
-        linear-gradient(180deg, #070a14 0%, var(--bg) 65%, #050814 100%);
       min-height:100vh;
+      display:grid;
+      place-items:center;
+      font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial;
+      background:#0b0f1a;
+      color:#fff;
     }
-    .wrap{max-width:920px; margin:0 auto; padding:22px 16px 56px}
-    header{display:flex; align-items:baseline; justify-content:space-between; gap:12px; margin-bottom:16px}
-    h1{font-size:18px; margin:0; letter-spacing:.2px}
-    .sub{margin:0; font-size:12px; color:var(--muted)}
-    .grid{display:grid; grid-template-columns:1fr .9fr; gap:14px}
-    @media (max-width:860px){.grid{grid-template-columns:1fr}}
-    .card{
-      background:linear-gradient(180deg, rgba(255,255,255,.07), rgba(255,255,255,.04));
-      border:1px solid var(--stroke);
-      border-radius:var(--r);
-      box-shadow:var(--shadow);
-      overflow:hidden;
-    }
-    .pad{padding:14px}
-    .row{display:flex; gap:10px; align-items:center}
-    input, button{
-      font:inherit;
-      border-radius:14px;
-      border:1px solid var(--stroke);
-      background:rgba(255,255,255,.05);
-      color:var(--text);
-      outline:none;
-      padding:10px 12px;
-    }
-    input{flex:1}
-    input:focus{border-color:rgba(124,92,255,.55)}
-    button{
-      cursor:pointer;
-      font-weight:600;
-      transition:.15s transform,.15s background,.15s border;
-      user-select:none;
-      white-space:nowrap;
-    }
-    button:hover{transform:translateY(-1px); background:rgba(255,255,255,.07); border-color:rgba(255,255,255,.18)}
-    .primary{border-color:rgba(124,92,255,.55); background:rgba(124,92,255,.18)}
-    .ghost{background:transparent}
-    ul{list-style:none; padding:0; margin:12px 0 0; display:grid; gap:8px}
-    .item{
-      display:flex;
-      gap:10px;
-      align-items:center;
-      justify-content:space-between;
-      padding:10px 10px;
-      border-radius:14px;
-      border:1px solid rgba(255,255,255,.10);
-      background:rgba(0,0,0,.10);
-    }
-    .left{display:flex; gap:10px; align-items:center; min-width:0}
-    .dot{
-      width:10px; height:10px; border-radius:999px;
-      background:rgba(255,255,255,.28);
-      flex:0 0 auto;
-    }
-    .done .dot{background:rgba(46,229,157,.85)}
-    .name{
-      overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
-      max-width:52ch;
-    }
-    .meta{font-size:12px; color:var(--muted); font-family:var(--mono)}
-    .pill{
-      font-size:12px;
-      padding:6px 10px;
-      border-radius:999px;
+    .box{
+      width:min(420px, 92vw);
+      padding:20px;
+      border-radius:16px;
+      background:rgba(255,255,255,.06);
       border:1px solid rgba(255,255,255,.12);
-      background:rgba(255,255,255,.04);
-      color:rgba(255,255,255,.82);
+      text-align:center;
     }
-    .pill.ok{border-color:rgba(46,229,157,.35); background:rgba(46,229,157,.10)}
-    .pill.bad{border-color:rgba(255,77,109,.35); background:rgba(255,77,109,.08)}
-    .actions{display:flex; gap:8px; align-items:center}
-    .tiny{padding:8px 10px; border-radius:12px; font-weight:600}
-    .danger{border-color:rgba(255,77,109,.45); background:rgba(255,77,109,.12)}
-    .muted{color:var(--muted)}
-    .kpis{display:grid; gap:10px; grid-template-columns:1fr 1fr}
-    .kpi{
-      padding:12px;
-      border-radius:var(--r);
-      border:1px solid rgba(255,255,255,.10);
-      background:rgba(255,255,255,.04);
+    h1{margin:0 0 12px; font-size:18px; font-weight:700}
+    .count{
+      font-size:56px;
+      font-weight:800;
+      letter-spacing:-1px;
+      margin:10px 0 14px;
     }
-    .kpi .t{margin:0 0 6px; font-size:12px; color:var(--muted); text-transform:uppercase; letter-spacing:.5px}
-    .kpi .v{margin:0; font-size:18px; font-family:var(--mono)}
-    .note{margin:10px 0 0; font-size:12px; color:var(--muted)}
-    .toast{
-      position:fixed; bottom:14px; left:50%;
-      transform:translateX(-50%);
-      background:rgba(0,0,0,.55);
+    button{
+      width:100%;
+      padding:12px 14px;
+      border-radius:14px;
       border:1px solid rgba(255,255,255,.14);
-      color:rgba(255,255,255,.92);
-      padding:10px 12px;
-      border-radius:999px;
-      font-size:12px;
-      opacity:0;
-      pointer-events:none;
-      transition:.18s opacity,.18s transform;
-      backdrop-filter:blur(10px);
-      z-index:10;
+      background:rgba(255,255,255,.08);
+      color:#fff;
+      font-size:16px;
+      font-weight:700;
+      cursor:pointer;
     }
-    .toast.show{opacity:1; transform:translateX(-50%) translateY(-2px)}
+    button:active{transform:translateY(1px)}
+    .row{display:flex; gap:10px; margin-top:10px}
+    .row button{width:50%; font-size:14px; font-weight:700}
   </style>
 </head>
 <body>
-  <div class="wrap">
-    <header>
-      <div>
-        <h1>Micro Habits</h1>
-        <p class="sub">Une mini checklist quotidienne (idéal pour tracer des events GA)</p>
-      </div>
-      <span class="pill" id="dayPill">Aujourd’hui</span>
-    </header>
-
-    <div class="grid">
-      <section class="card">
-        <div class="pad">
-          <div class="row">
-            <input id="habitInput" type="text" placeholder="Ajoute une habitude (ex: 10 min de marche)" maxlength="60" />
-            <button class="primary" id="addBtn">Ajouter</button>
-          </div>
-
-          <ul id="list"></ul>
-
-          <p class="note">Tout est local (localStorage). Double-clic sur une habitude = valider/invalider.</p>
-        </div>
-      </section>
-
-      <aside class="card">
-        <div class="pad">
-          <div class="kpis">
-            <div class="kpi">
-              <p class="t">Progression</p>
-              <p class="v" id="progress">0/0</p>
-            </div>
-            <div class="kpi">
-              <p class="t">Série</p>
-              <p class="v" id="streak">0</p>
-            </div>
-          </div>
-
-          <div style="display:flex; gap:10px; margin-top:12px; flex-wrap:wrap">
-            <span class="pill ok" id="statusPill">Rien à faire</span>
-            <span class="pill" id="datePill">—</span>
-          </div>
-
-          <div style="display:flex; gap:10px; margin-top:12px; flex-wrap:wrap">
-            <button class="tiny ghost" id="resetTodayBtn">Reset du jour</button>
-            <button class="tiny danger" id="clearAllBtn">Tout effacer</button>
-          </div>
-
-          <p class="note muted">Tu peux instrumenter : add_habit, toggle_habit, delete_habit, reset_today, clear_all.</p>
-        </div>
-      </aside>
+  <div class="box">
+    <h1>Compteur de clics</h1>
+    <div class="count" id="count">0</div>
+    <button id="clickBtn">Clique-moi</button>
+    <div class="row">
+      <button id="minusBtn">-1</button>
+      <button id="resetBtn">Reset</button>
     </div>
   </div>
 
-  <div class="toast" id="toast" role="status" aria-live="polite"></div>
-
   <script>
     const $ = (s) => document.querySelector(s);
-    const KEY = "micro_habits_v1";
-    const KEY_STREAK = "micro_habits_streak_v1";
-    const KEY_LASTDONE = "micro_habits_lastdone_v1";
+    const KEY = "click_counter_v1";
 
-    const input = $("#habitInput");
-    const list = $("#list");
-    const progress = $("#progress");
-    const streakEl = $("#streak");
-    const statusPill = $("#statusPill");
-    const datePill = $("#datePill");
-    const dayPill = $("#dayPill");
-    const toastEl = $("#toast");
-
-    let toastTimer = null;
-    function toast(msg){
-      toastEl.textContent = msg;
-      toastEl.classList.add("show");
-      clearTimeout(toastTimer);
-      toastTimer = setTimeout(() => toastEl.classList.remove("show"), 1500);
-    }
+    let n = parseInt(localStorage.getItem(KEY) || "0", 10);
+    const countEl = $("#count");
 
     function track(name, params = {}){
       if (typeof window.gtag === "function") window.gtag("event", name, params);
     }
 
-    function todayKey(){
-      const d = new Date();
-      const y = d.getFullYear();
-      const m = String(d.getMonth()+1).padStart(2,"0");
-      const da = String(d.getDate()).padStart(2,"0");
-      return `${y}-${m}-${da}`;
-    }
-
-    function load(){
-      try{ return JSON.parse(localStorage.getItem(KEY)) || { day: todayKey(), items: [] }; }
-      catch{ return { day: todayKey(), items: [] }; }
-    }
-
-    function save(state){
-      localStorage.setItem(KEY, JSON.stringify(state));
-      return state;
-    }
-
-    function normalizeDay(state){
-      const t = todayKey();
-      if (state.day !== t){
-        state.day = t;
-        state.items = state.items.map(x => ({...x, done:false}));
-        save(state);
-      }
-      return state;
-    }
-
-    function computeStreakOnCompleteAll(){
-      const t = todayKey();
-      const last = localStorage.getItem(KEY_LASTDONE);
-      let streak = parseInt(localStorage.getItem(KEY_STREAK) || "0", 10);
-
-      if (last === t) return streak;
-
-      if (!last){
-        streak = 1;
-      } else {
-        const a = new Date(last + "T00:00:00");
-        const b = new Date(t + "T00:00:00");
-        const diff = Math.round((b - a) / (1000*60*60*24));
-        streak = (diff === 1) ? streak + 1 : 1;
-      }
-
-      localStorage.setItem(KEY_STREAK, String(streak));
-      localStorage.setItem(KEY_LASTDONE, t);
-      return streak;
-    }
-
     function render(){
-      let state = normalizeDay(load());
-      const t = state.day;
-      datePill.textContent = t;
-      dayPill.textContent = `Jour ${t}`;
-
-      list.innerHTML = "";
-      const total = state.items.length;
-      const done = state.items.filter(x => x.done).length;
-
-      progress.textContent = `${done}/${total}`;
-      const allDone = total > 0 && done === total;
-
-      if (total === 0){
-        statusPill.textContent = "Rien à faire";
-        statusPill.className = "pill";
-      } else if (allDone){
-        statusPill.textContent = "Tout est fait ✅";
-        statusPill.className = "pill ok";
-      } else {
-        statusPill.textContent = "En cours";
-        statusPill.className = "pill";
-      }
-
-      let streak = parseInt(localStorage.getItem(KEY_STREAK) || "0", 10);
-      if (allDone) streak = computeStreakOnCompleteAll();
-      streakEl.textContent = String(streak);
-
-      state.items.forEach((it, idx) => {
-        const li = document.createElement("li");
-        li.className = "item" + (it.done ? " done" : "");
-        li.innerHTML = `
-          <div class="left">
-            <span class="dot"></span>
-            <div style="min-width:0">
-              <div class="name">${escapeHtml(it.name)}</div>
-              <div class="meta">${it.done ? "fait" : "à faire"}</div>
-            </div>
-          </div>
-          <div class="actions">
-            <button class="tiny" data-act="del" data-idx="${idx}">Suppr</button>
-          </div>
-        `;
-        li.addEventListener("dblclick", () => toggle(idx));
-        list.appendChild(li);
-      });
-
-      list.querySelectorAll("button[data-act='del']").forEach(btn => {
-        btn.addEventListener("click", (e) => {
-          const i = parseInt(e.currentTarget.getAttribute("data-idx"), 10);
-          remove(i);
-        });
-      });
+      countEl.textContent = String(n);
+      localStorage.setItem(KEY, String(n));
     }
 
-    function escapeHtml(str){
-      return String(str)
-        .replaceAll("&","&amp;")
-        .replaceAll("<","&lt;")
-        .replaceAll(">","&gt;")
-        .replaceAll('"',"&quot;")
-        .replaceAll("'","&#039;");
-    }
-
-    function add(){
-      const name = input.value.trim();
-      if (!name){ toast("Écris une habitude."); return; }
-
-      const state = normalizeDay(load());
-      state.items.unshift({ name, done:false });
-      save(state);
-
-      input.value = "";
-      toast("Ajouté.");
-      track("add_habit", { name_len: name.length, total: state.items.length });
+    $("#clickBtn").addEventListener("click", () => {
+      n++;
       render();
-    }
-
-    function toggle(idx){
-      const state = normalizeDay(load());
-      const it = state.items[idx];
-      if (!it) return;
-      it.done = !it.done;
-      save(state);
-
-      toast(it.done ? "Validé ✅" : "Annulé");
-      track("toggle_habit", { done: it.done, total: state.items.length });
-      render();
-    }
-
-    function remove(idx){
-      const state = normalizeDay(load());
-      const it = state.items[idx];
-      if (!it) return;
-      state.items.splice(idx, 1);
-      save(state);
-
-      toast("Supprimé.");
-      track("delete_habit", { total: state.items.length });
-      render();
-    }
-
-    $("#addBtn").addEventListener("click", add);
-    input.addEventListener("keydown", (e) => { if (e.key === "Enter") add(); });
-
-    $("#resetTodayBtn").addEventListener("click", () => {
-      const state = normalizeDay(load());
-      state.items = state.items.map(x => ({...x, done:false}));
-      save(state);
-      toast("Reset du jour.");
-      track("reset_today", { total: state.items.length });
-      render();
+      track("counter_click", { value: n });
     });
 
-    $("#clearAllBtn").addEventListener("click", () => {
-      localStorage.removeItem(KEY);
-      toast("Tout effacé.");
-      track("clear_all", {});
+    $("#minusBtn").addEventListener("click", () => {
+      n--;
       render();
+      track("counter_minus", { value: n });
+    });
+
+    $("#resetBtn").addEventListener("click", () => {
+      n = 0;
+      render();
+      track("counter_reset", {});
     });
 
     render();
