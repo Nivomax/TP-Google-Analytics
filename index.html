@@ -3,14 +3,15 @@
 <head>
 
   <!-- Google Tag Manager -->
-<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
-new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
-j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
-'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
-})(window,document,'script','dataLayer','GTM-W5M73MKP');</script>
-<!-- End Google Tag Manager -->
+  <script>
+    (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+    new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+    j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+    'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+    })(window,document,'script','dataLayer','GTM-W5M73MKP');
+  </script>
+  <!-- End Google Tag Manager -->
 
-  
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Compteur de clics</title>
@@ -82,13 +83,6 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 </head>
 
 <body>
-  <!-- Google Tag Manager (noscript) -->
-  <noscript>
-    <iframe src="https://www.googletagmanager.com/ns.html?id=GTM-W5M73MKP"
-            height="0" width="0" style="display:none;visibility:hidden"></iframe>
-  </noscript>
-  <!-- End Google Tag Manager (noscript) -->
-
   <div class="topbar">
     <div class="count" id="count">0</div>
     <button class="reset" id="resetBtn">Reset</button>
@@ -106,14 +100,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
     const plusBtn = $("#plusBtn");
     const resetBtn = $("#resetBtn");
 
-    // dataLayer utilisé par GTM
-    window.dataLayer = window.dataLayer || [];
-
     let n = parseInt(localStorage.getItem(KEY) || "0", 10);
-
-    function track(eventName, params = {}){
-      window.dataLayer.push({ event: eventName, ...params });
-    }
 
     function render(){
       countEl.textContent = String(n);
@@ -143,14 +130,12 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
     plusBtn.addEventListener("click", () => {
       n++;
       render();
-      track("counter_click", { value: n });
       movePlus();
     });
 
     resetBtn.addEventListener("click", () => {
       n = 0;
       render();
-      track("counter_reset", {});
       movePlus();
     });
 
@@ -161,4 +146,3 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
   </script>
 </body>
 </html>
-
